@@ -31,8 +31,11 @@
 *.out
 *.app
 
+<<<<<<< HEAD
 # results folders 
 results/
 
+=======
+>>>>>>> remote-2/main
 # Compile Commands
 compile_commands.json
