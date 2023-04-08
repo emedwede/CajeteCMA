@@ -203,6 +203,7 @@ namespace Cajete
 
             //TODO: move the simulation algorithm to its own class
             //is this where we run the simulation?
+            double total_run_time = 0.0;
             for(auto i = 1; i <= settings.NUM_STEPS; i++)
             {
                 std::cout << "Running step " << i << std::endl;
@@ -235,7 +236,7 @@ namespace Cajete
                         plant_model_ssa(bucket, geoplex2D, system_graph, settings);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
-                        std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
+                        //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
                         dim_time += duration.count();
                    }
                 }
@@ -274,7 +275,7 @@ namespace Cajete
                         plant_model_ssa(bucket, geoplex2D, system_graph, settings);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
-                        std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
+                        //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
                         dim_time += duration.count();
                    }
                 }
@@ -307,7 +308,7 @@ namespace Cajete
                         plant_model_ssa(bucket, geoplex2D, system_graph, settings);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
-                        std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
+                        //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
                         dim_time += duration.count();
                    }
                 }
@@ -355,9 +356,10 @@ namespace Cajete
                 
                 std::cout << "Total dimensional time is " << tot_time << " milliseconds\n";
                 time_count.push_back(tot_time);
+                total_run_time += tot_time;
             }
             std::cout << "-----------------------------------------------------------------------\n\n";
-            
+            std::cout << "total run time of simulation including io: " << (total_run_time/1000)/60 << " minutes\n"; 
             print_numpy_array_stats(con_com, "con_com");
             print_numpy_array_stats(type_counts[Plant::negative], "negative");
             print_numpy_array_stats(type_counts[Plant::positive], "positive");

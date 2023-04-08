@@ -306,7 +306,7 @@ void plant_model_ssa(BucketType& bucket, GeoplexType& geoplex2D, GraphType& syst
             microtubule_rule_firing(rule_matches, system_graph, bucket, prop, settings);
         }
     }
-    std::cout << "Total steps taken: " << steps << "\n";
+    //std::cout << "Total steps taken: " << steps << "\n";
 }
 
 //be careful with solving, could lead to a segmentation fault 
