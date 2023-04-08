@@ -52,7 +52,13 @@ namespace Cajete
         double TOTAL_TIME;
         double MAXIMAL_REACTION_RADIUS;
         double DELTA_T_MIN;
-        double RHO_TEST_RATE; //a tunable test paramater for MT dynamics
+        std::size_t CHECKPOINT_FREQUENCY;
+        double CATASTROPHE_RATE_FACTOR; 
+        double ZIPPER_RATE_FACTOR;
+        double CROSSOVER_RATE_FACTOR;
+        double RESCUE_RATE_FACTOR;
+        double INSTABILITY_RATE_FACTOR;
+        double WOBBLE_ANGLE_FACTOR;
     };
   
     template <typename DataType>
@@ -100,7 +106,7 @@ namespace Cajete
         
         //Simulate until the specified unit time
         settings.TOTAL_TIME = double(interface["SETTINGS"]["TOTAL_TIME"]);
-        settings.NUM_INTERNAL_STEPS = 15'000;//1000;
+        settings.NUM_INTERNAL_STEPS = double(interface["SETTINGS"]["NUM_INTERNAL_STEPS"]);
         //Delta should be big, but not to big. In this case, the maximum amount of time it would
         //take one MT to grow a single unit of MT
         settings.DELTA = 
@@ -109,8 +115,14 @@ namespace Cajete
         settings.DELTA_DELTA_T = settings.DELTA / settings.NUM_INTERNAL_STEPS; 
         settings.DELTA_T_MIN = settings.DELTA_DELTA_T;
         settings.NUM_STEPS = settings.TOTAL_TIME / settings.DELTA;
+        settings.CHECKPOINT_FREQUENCY = std::size_t(interface["SETTINGS"]["CHECKPOINT_FREQUENCY"]);
+        settings.CATASTROPHE_RATE_FACTOR = double(interface["RATE_FACTORS"]["CATASTROPHE_RATE_FACTOR"]);
+        settings.ZIPPER_RATE_FACTOR = double(interface["RATE_FACTORS"]["ZIPPER_RATE_FACTOR"]);
+        settings.CROSSOVER_RATE_FACTOR = double(interface["RATE_FACTORS"]["CROSSOVER_RATE_FACTOR"]);
+        settings.RESCUE_RATE_FACTOR = double(interface["RATE_FACTORS"]["RESCUE_RATE_FACTOR"]);
+        settings.INSTABILITY_RATE_FACTOR = double(interface["RATE_FACTORS"]["INSTABILITY_RATE_FACTOR"]);
+        settings.WOBBLE_ANGLE_FACTOR = double(interface["RATE_FACTORS"]["WOBBLE_ANGLE_FACTOR"]);
 
-        settings.RHO_TEST_RATE = double(interface["EXPERIMENTAL"]["RHO_TEST_RATE"]);
     }
 
     //Models are inteded to be designed based on the 
@@ -321,8 +333,8 @@ namespace Cajete
                 for(auto item : bucketsND) item.clear();
         
                 std::cout << "Running the checkpointer\n";
-                //TODO: The checkpointer to save time steps
-                vtk_writer.save(system_graph, title+std::to_string(i));
+                if(i % settings.CHECKPOINT_FREQUENCY == 0)
+                    vtk_writer.save(system_graph, title+std::to_string(i));
                 
                 con_com.push_back(YAGL::connected_components(system_graph)); 
                 

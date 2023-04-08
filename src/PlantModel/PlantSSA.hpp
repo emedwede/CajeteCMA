@@ -269,9 +269,9 @@ void plant_model_ssa(BucketType& bucket, GeoplexType& geoplex2D, GraphType& syst
             }
             for(auto& match : rule_matches[4])
             {
-                auto rho1 = settings.RHO_TEST_RATE*microtubule_zippering_propensity(system_graph, match, settings);
-                auto rho2 = 0.1*settings.RHO_TEST_RATE*microtubule_collision_crossover_propensity(system_graph, match, settings);
-                auto rho3 = 20*settings.RHO_TEST_RATE*microtubule_catastrophe_propensity(system_graph, match, settings);
+                auto rho1 = settings.ZIPPER_RATE_FACTOR*microtubule_zippering_propensity(system_graph, match, settings);
+                auto rho2 = settings.CROSSOVER_RATE_FACTOR*microtubule_collision_crossover_propensity(system_graph, match, settings);
+                auto rho3 = settings.CATASTROPHE_RATE_FACTOR*microtubule_catastrophe_propensity(system_graph, match, settings);
                 rule_propensities[2] += rho1;
                 rule_propensities[5] += rho2;
                 rule_propensities[6] += rho3;
@@ -375,7 +375,7 @@ void microtubule_rule_firing(MatchType* all_matches, GraphType& system_graph, Bu
             eventFired++;
             local_progress -= prop[ruleFired][eventFired];
         }
-        microtubule_growing_end_polymerize_rewrite(system_graph, all_matches[0][eventFired], bucket); 
+        microtubule_growing_end_polymerize_rewrite(system_graph, all_matches[0][eventFired], bucket, settings.WOBBLE_ANGLE_FACTOR); 
     }       
     if(ruleFired == 1)
     {
