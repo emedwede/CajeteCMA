@@ -270,8 +270,8 @@ void plant_model_ssa(BucketType& bucket, GeoplexType& geoplex2D, GraphType& syst
             for(auto& match : rule_matches[4])
             {
                 auto rho1 = settings.RHO_TEST_RATE*microtubule_zippering_propensity(system_graph, match, settings);
-                auto rho2 = settings.RHO_TEST_RATE*microtubule_collision_crossover_propensity(system_graph, match, settings);
-                auto rho3 = settings.RHO_TEST_RATE*microtubule_catastrophe_propensity(system_graph, match, settings);
+                auto rho2 = 0.1*settings.RHO_TEST_RATE*microtubule_collision_crossover_propensity(system_graph, match, settings);
+                auto rho3 = 20*settings.RHO_TEST_RATE*microtubule_catastrophe_propensity(system_graph, match, settings);
                 rule_propensities[2] += rho1;
                 rule_propensities[5] += rho2;
                 rule_propensities[6] += rho3;

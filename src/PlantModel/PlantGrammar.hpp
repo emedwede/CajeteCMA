@@ -277,7 +277,8 @@ void microtubule_growing_end_polymerize_rewrite(GraphType& graph, std::vector<mt
         x3[iter] = x2[iter] - ((x2[iter]-x1[iter]) * gamma); 
     }
     std::random_device random_device; std::mt19937 random_engine(random_device());
-    std::uniform_real_distribution<double> distribution_angle(-3.14/8.0, 3.14/8.0); 
+    //decrease the wobble to be ~0.5 degrees
+    std::uniform_real_distribution<double> distribution_angle(-3.14/(45.0*8.0), 3.14/(45.0*8.0)); 
     double theta = distribution_angle(random_engine);
     auto u10_rot = u1[0]*cos(theta) + u1[1]*sin(theta);
     auto u11_rot = -u1[0]*sin(theta) +u1[1]*cos(theta);
@@ -343,13 +344,13 @@ double microtubule_retraction_end_depolymerize_propensity(GraphType& graph, std:
 template <typename GraphType, typename ParamType>
 double microtubule_positive_to_negative_propensity(GraphType& graph, std::vector<mt_key_type>& match, ParamType& settings)
 {
-    return 0.01;
+    return 0.0005; //changed from 0.01
 }
 
 template <typename GraphType, typename ParamType>
 double microtubule_negative_to_positive_propensity(GraphType& graph, std::vector<mt_key_type>& match, ParamType& settings)
 {
-    return 0.01;
+    return 0.0005; //changed from 0.01
 }
 
 template <typename GraphType, typename ParamType>
