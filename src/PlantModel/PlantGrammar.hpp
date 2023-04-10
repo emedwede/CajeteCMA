@@ -709,7 +709,7 @@ double microtubule_zippering_propensity(GraphType& graph, std::vector<mt_key_typ
 
     if(theta_l != 1.0 && theta_l != -1.0)
     {
-        double THETA_CRIT = (2.0*3.14)/9.0;
+        double THETA_CRIT = settings.CRITICAL_ANGLE;//(2.0*3.14)/9.0;
         double critical_angle = cos(THETA_CRIT);
         double crit_in_range = 0.0;
         (abs(theta_l)/abs(critical_angle) > 1.0) ? crit_in_range = 1.0 : crit_in_range = 0.0;

@@ -59,6 +59,7 @@ namespace Cajete
         double RESCUE_RATE_FACTOR;
         double INSTABILITY_RATE_FACTOR;
         double WOBBLE_ANGLE_FACTOR;
+        double CRITICAL_ANGLE;
     };
   
     template <typename DataType>
@@ -122,7 +123,7 @@ namespace Cajete
         settings.RESCUE_RATE_FACTOR = double(interface["RATE_FACTORS"]["RESCUE_RATE_FACTOR"]);
         settings.INSTABILITY_RATE_FACTOR = double(interface["RATE_FACTORS"]["INSTABILITY_RATE_FACTOR"]);
         settings.WOBBLE_ANGLE_FACTOR = double(interface["RATE_FACTORS"]["WOBBLE_ANGLE_FACTOR"]);
-
+        settings.CRITICAL_ANGLE = double(interface["RATE_FACTORS"]["CRITICAL_ANGLE"]);
     }
 
     //Models are inteded to be designed based on the 
