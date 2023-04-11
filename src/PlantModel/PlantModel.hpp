@@ -25,9 +25,81 @@
 #include <chrono>
 #include <string>
 #include <filesystem>
+#include <numeric>
 
 namespace Cajete
 {
+    double compute_correlation(const std::vector<double>& x, const std::vector<double>& y) {
+        // Compute means
+        double mean_x = std::accumulate(x.begin(), x.end(), 0.0) / x.size();
+        double mean_y = std::accumulate(y.begin(), y.end(), 0.0) / y.size();
+
+        // Compute variances
+        double var_x = std::accumulate(x.begin(), x.end(), 0.0,
+            [mean_x](double acc, double xi) { return acc + (xi - mean_x) * (xi - mean_x); }) / (x.size() - 1);
+        double var_y = std::accumulate(y.begin(), y.end(), 0.0,
+            [mean_y](double acc, double yi) { return acc + (yi - mean_y) * (yi - mean_y); }) / (y.size() - 1);
+
+        // Check for zero variance
+        if (var_x == 0 || var_y == 0) {
+            return 0; // or any other value you choose to return in this case
+        }
+
+        // Compute covariance
+        double cov = 0;
+        for (size_t i = 0; i < x.size(); ++i) {
+            cov += (x[i] - mean_x) * (y[i] - mean_y);
+        }
+        cov /= x.size() - 1;
+
+        // Compute correlation coefficient
+        double corr = cov / std::sqrt(var_x * var_y);
+
+        return corr;
+}
+
+
+    template<typename GraphType>
+    double compute_correlation(GraphType& system_graph)
+    {
+        std::vector<double> x;
+        std::vector<double> y;
+        for(auto& node : system_graph.getNodeSetRef())
+        {
+            auto& u = node.second.getData().unit_vec;
+            x.push_back(u[0]);
+            y.push_back(u[1]);
+            //y.push_back(abs(u[1]));
+        }
+        
+        return compute_correlation(x, y);
+        /*std::cout << "C: " << correlation;
+        return correlation;
+        auto avg_x = std::reduce(x.begin(), x.end(), 0.0) / x.size();
+        auto avg_y = std::reduce(y.begin(), y.end(), 0.0) / y.size();
+        //std::cout << "avg_x: " << avg_x << ", avg_y: " << avg_y << "\n";
+
+        double e_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
+        double n = x.size();
+        double e_x_y = n * avg_x * avg_y;
+        std::cout << e_xy << "\n";
+        std::cout << e_x_y << "\n";
+        std::vector<double> r1(x.size());
+        std::vector<double> r2(y.size());
+        
+        std::transform(x.begin(), x.end(), r1.begin(),
+                [&](double x) { return (x - avg_x)*(x - avg_x); });
+        double s1 = std::sqrt(std::accumulate(r1.begin(), r1.end(), 0.0));
+        std::cout << s1 << "\n"; 
+        std::transform(y.begin(), y.end(), r2.begin(), 
+                [&](double y){ return (y - avg_y)*(y - avg_y); });
+        double s2 = std::sqrt(std::accumulate(r2.begin(), r2.end(), 0.0));
+        std::cout << s2 << "\n";
+        /double correlation = (e_xy - e_x_y) / (s1*s2);
+        std::cout << "C: " << correlation << "\n";
+        return correlation;*/
+    }
+
     struct Parameters
     {
         std::string EXPERIMENT_NAME;
@@ -175,13 +247,14 @@ namespace Cajete
 
         void run() override {
             std::cout << "Running the plant model simulation\n";
-            
+
             Cajete::VtkFileWriter<graph_type> vtk_writer;
             std::vector<std::size_t> con_com;
             con_com.push_back(YAGL::connected_components(system_graph));
             std::vector<std::size_t> total_nodes;
             std::vector<std::size_t> type_counts[5];
             std::vector<double> time_count; 
+            std::vector<double> correlation;
             std::size_t junction_count = 0;
             std::size_t positive_count = 0;
             std::size_t negative_count = 0;
@@ -209,7 +282,8 @@ namespace Cajete
             
             total_nodes.push_back(negative_count +
                     positive_count + intermediate_count + junction_count + zipper_count);
-                
+            //compute the intial correlation
+            correlation.push_back(compute_correlation(system_graph));  
             std::string title = results_dir_name+"/simulation_step_";
             std::cout << "Saving the initial state of the system graph\n";
             vtk_writer.save(system_graph, title+std::to_string(0));
@@ -335,8 +409,11 @@ namespace Cajete
         
                 std::cout << "Running the checkpointer\n";
                 if(i % settings.CHECKPOINT_FREQUENCY == 0)
+                {
                     vtk_writer.save(system_graph, title+std::to_string(i));
-                
+                    //compute the correlation 
+                    correlation.push_back(compute_correlation(system_graph));
+                }
                 con_com.push_back(YAGL::connected_components(system_graph)); 
                 
                 std::size_t junction_count = 0;
@@ -381,6 +458,7 @@ namespace Cajete
             print_numpy_array_stats(type_counts[Plant::zipper], "zipper");
             print_numpy_array_stats(total_nodes, "total_nodes");
             print_numpy_array_stats(time_count, "time_count");
+            print_numpy_array_stats(correlation, "correlation");
         }
 
 
