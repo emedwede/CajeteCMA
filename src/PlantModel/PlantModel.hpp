@@ -58,6 +58,23 @@ namespace Cajete
         return corr;
 }
 
+    
+    struct Point
+    {
+        double p_x, p_y;
+        double u_x, u_y;
+    };
+    
+    double dot_product(Point& p1, Point& p2)
+    {
+        return p1.u_x*p2.u_x + p1.u_y*p2.u_y;
+    }
+    
+    double angle_ref(Point& p1, Point& p2)
+    {
+        double dot_prod = dot_product(p1, p2);
+        return std::acos(std::min(std::abs(dot_prod), 1.0));
+    }
 
     template<typename GraphType>
     double compute_correlation(GraphType& system_graph)
@@ -67,40 +84,68 @@ namespace Cajete
         for(auto& node : system_graph.getNodeSetRef())
         {
             auto& u = node.second.getData().unit_vec;
-            x.push_back(u[0]);
-            y.push_back(u[1]);
-            //y.push_back(abs(u[1]));
+            double u0 = u[0];
+            double u1 = u[1];
+
+            x.push_back(u0);
+            y.push_back(u1);
         }
         
         return compute_correlation(x, y);
-        /*std::cout << "C: " << correlation;
-        return correlation;
-        auto avg_x = std::reduce(x.begin(), x.end(), 0.0) / x.size();
-        auto avg_y = std::reduce(y.begin(), y.end(), 0.0) / y.size();
-        //std::cout << "avg_x: " << avg_x << ", avg_y: " << avg_y << "\n";
-
-        double e_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
-        double n = x.size();
-        double e_x_y = n * avg_x * avg_y;
-        std::cout << e_xy << "\n";
-        std::cout << e_x_y << "\n";
-        std::vector<double> r1(x.size());
-        std::vector<double> r2(y.size());
+    }
+    
+    std::vector<double> two_point_correlation_alpha(std::vector<Point>& points, double bin_size, double max_distance)
+    {
+        std::size_t num_bins = std::ceil(max_distance / bin_size);
+        std::vector<double> correlation(num_bins, 0.0);
         
-        std::transform(x.begin(), x.end(), r1.begin(),
-                [&](double x) { return (x - avg_x)*(x - avg_x); });
-        double s1 = std::sqrt(std::accumulate(r1.begin(), r1.end(), 0.0));
-        std::cout << s1 << "\n"; 
-        std::transform(y.begin(), y.end(), r2.begin(), 
-                [&](double y){ return (y - avg_y)*(y - avg_y); });
-        double s2 = std::sqrt(std::accumulate(r2.begin(), r2.end(), 0.0));
-        std::cout << s2 << "\n";
-        /double correlation = (e_xy - e_x_y) / (s1*s2);
-        std::cout << "C: " << correlation << "\n";
-        return correlation;*/
+        std::vector<int> num_pairs(num_bins, 0);
+
+        int num_points = points.size();
+        for (int i = 0; i < num_points; i++) {
+            Point p1 = points[i];
+            for (int j = i + 1; j < num_points; j++) {
+                Point p2 = points[j];
+                double distance = hypot(p1.p_x - p2.p_x, p1.p_y - p2.p_y);
+                if (distance <= max_distance) {
+                    double angle = angle_ref(p1, p2);
+                    //if (angle >= alpha1 && angle <= alpha2) {
+                        int bin_index = floor(distance / bin_size);
+                        auto abs_dot = std::abs(dot_product(p1, p2));
+                        if(abs_dot > 1.0) abs_dot = 1.0;
+                        correlation[bin_index] += std::acos(abs_dot); //std::cos(angle);
+                        num_pairs[bin_index]++;
+                    //}
+                }
+            }
+        }
+
+        for (int i = 0; i < num_bins; i++) {
+            if (num_pairs[i] > 0) {
+                correlation[i] /= num_pairs[i];
+            }
+        }
+        return correlation;
     }
 
-    struct Parameters
+    template<typename GraphType, typename ParamType>
+    std::vector<double> compute_two_point_correlation_alpha(GraphType& system_graph, ParamType& settings)
+    {
+        std::vector<Point> points;
+        for(auto& node : system_graph.getNodeSetRef())
+        {
+            auto& p = node.second.getData().position;
+            auto& u = node.second.getData().unit_vec;
+            
+            points.push_back({p[0], p[1], u[0], u[1]});
+        }
+        
+        double bin_size = settings.MAXIMAL_REACTION_RADIUS;
+        double max_distance = std::max(settings.CELL_NX*settings.CELL_DX, settings.CELL_NY*settings.CELL_DY); 
+        return two_point_correlation_alpha(points, bin_size, max_distance);
+    }
+    
+        struct Parameters
     {
         std::string EXPERIMENT_NAME;
         double DELTA;
@@ -247,7 +292,8 @@ namespace Cajete
 
         void run() override {
             std::cout << "Running the plant model simulation\n";
-
+            auto angular_correlation = compute_two_point_correlation_alpha(system_graph, settings);
+            
             Cajete::VtkFileWriter<graph_type> vtk_writer;
             std::vector<std::size_t> con_com;
             con_com.push_back(YAGL::connected_components(system_graph));
@@ -412,7 +458,11 @@ namespace Cajete
                 {
                     vtk_writer.save(system_graph, title+std::to_string(i));
                     //compute the correlation 
-                    correlation.push_back(compute_correlation(system_graph));
+                    //correlation.push_back(compute_correlation(system_graph));
+
+                    //compute the two point alpha correlation 
+                    //auto angular_correlation = compute_two_point_correlation_alpha(system_graph, settings);
+                    //print_numpy_array_stats(angular_correlation, "angle_correlation");
                 }
                 con_com.push_back(YAGL::connected_components(system_graph)); 
                 
@@ -450,6 +500,7 @@ namespace Cajete
             }
             std::cout << "-----------------------------------------------------------------------\n\n";
             std::cout << "total run time of simulation including io: " << (total_run_time/1000)/60 << " minutes\n"; 
+            
             print_numpy_array_stats(con_com, "con_com");
             print_numpy_array_stats(type_counts[Plant::negative], "negative");
             print_numpy_array_stats(type_counts[Plant::positive], "positive");
@@ -459,6 +510,12 @@ namespace Cajete
             print_numpy_array_stats(total_nodes, "total_nodes");
             print_numpy_array_stats(time_count, "time_count");
             print_numpy_array_stats(correlation, "correlation");
+
+            auto angular_correlation2 = compute_two_point_correlation_alpha(system_graph, settings);
+            
+            print_numpy_array_stats(angular_correlation, "angle_correlation_"+settings.EXPERIMENT_NAME+"_start");
+            print_numpy_array_stats(angular_correlation2, "angle_correlation_"+settings.EXPERIMENT_NAME+"_end");
+
         }
 
 
