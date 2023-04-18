@@ -111,9 +111,9 @@ namespace Cajete
                     double angle = angle_ref(p1, p2);
                     //if (angle >= alpha1 && angle <= alpha2) {
                         int bin_index = floor(distance / bin_size);
-                        auto abs_dot = std::abs(dot_product(p1, p2));
+                        auto abs_dot = dot_product(p1, p2)*dot_product(p1,p2);//std::abs(dot_product(p1, p2));
                         if(abs_dot > 1.0) abs_dot = 1.0;
-                        correlation[bin_index] += std::acos(abs_dot); //std::cos(angle);
+                        correlation[bin_index] += abs_dot;//std::acos(abs_dot); //std::cos(angle);
                         num_pairs[bin_index]++;
                     //}
                 }
