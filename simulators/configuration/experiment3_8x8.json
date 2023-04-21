@@ -1,0 +1,33 @@
+{
+  "META": {
+    "EXPERIMENT": "experiment3_8x8"
+  },
+  "SETTINGS": {
+    "TOTAL_TIME": 2.0,
+    "NUM_INTERNAL_STEPS": 1500,
+    "CHECKPOINT_FREQUENCY": 10,
+    "CELL_NX": 8,
+    "CELL_NY": 8,
+    "CELL_DX": 12.5,
+    "CELL_DY": 12.5,
+    "GHOSTED": true,
+    "NUM_MT": 3200,
+    "MT_MIN_SEGMENT_INIT": 0.5,
+    "MT_MAX_SEGMENT_INIT": 0.8,
+    "LENGTH_DIV_FACTOR": 1.2,
+    "DIV_LENGTH": 0.5,
+    "DIV_LENGTH_RETRACT": 0.125,
+    "V_PLUS": 1.0,
+    "V_MINUS": 0.25,
+    "SIGMOID_K": 10.0
+  },
+  "RATE_FACTORS": {
+    "CATASTROPHE_RATE_FACTOR": 1.0,
+    "ZIPPER_RATE_FACTOR": 1.0,
+    "CROSSOVER_RATE_FACTOR": 1.0,
+    "RESCUE_RATE_FACTOR": 0.01,
+    "INSTABILITY_RATE_FACTOR": 0.0005,
+    "WOBBLE_ANGLE_FACTOR": 0.098,
+    "CRITICAL_ANGLE": 0.698
+  }
+}

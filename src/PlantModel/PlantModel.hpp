@@ -134,8 +134,8 @@ namespace Cajete
         std::vector<Point> points;
         for(auto& node : system_graph.getNodeSetRef())
         {
-            auto& p = node.second.getData().position;
-            auto& u = node.second.getData().unit_vec;
+            auto p = node.second.getData().position;
+            auto u = node.second.getData().unit_vec;
             
             points.push_back({p[0], p[1], u[0], u[1]});
         }
@@ -283,6 +283,7 @@ namespace Cajete
             writer.save(geoplex2D.getGraph(), results_dir_name+"/factory_geoplex");
             
             std::cout << "Initializing the system graph\n";
+            //Plant::microtubule_unit_scatter(system_graph, geoplex2D, settings);
             Plant::microtubule_uniform_scatter(system_graph, geoplex2D, settings); 
             
             //std::cout << "Generating the grammar\n";
@@ -293,10 +294,11 @@ namespace Cajete
         void run() override {
             std::cout << "Running the plant model simulation\n";
             auto angular_correlation = compute_two_point_correlation_alpha(system_graph, settings);
-            
             Cajete::VtkFileWriter<graph_type> vtk_writer;
+            std::cout << system_graph;
             std::vector<std::size_t> con_com;
             con_com.push_back(YAGL::connected_components(system_graph));
+
             std::vector<std::size_t> total_nodes;
             std::vector<std::size_t> type_counts[5];
             std::vector<double> time_count; 

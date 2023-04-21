@@ -7,7 +7,9 @@
 #include "ExpandedComplex2D.hpp"
 #include "YAGL_Graph.hpp"
 
+#ifdef ENABLE_SUNDIALS
 #include "SundialsUtils.hpp"
+#endif
 
 #include <chrono>
 #include <random>
@@ -17,10 +19,12 @@
 #include <math.h>
 #include <map>
 
+#ifdef ENABLE_SUNDIALS
 #include <arkode/arkode_erkstep.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_types.h> 
 #include <sundials/sundials_math.h>
+#endif
 
 namespace Cajete 
 {
@@ -78,6 +82,7 @@ void filter_matches(MatchSetType* unfiltered, MatchSetType* filtered, std::size_
     }
 }
 
+#ifdef ENABLE_SUNDIALS 
 int rhs_func(realtype t, N_Vector y, N_Vector ydot, void* user_data) 
 {
     return 0;
@@ -87,6 +92,7 @@ int root_func(realtype t, N_Vector y, realtype* gout, void* user_data)
 {
     return 0;
 }
+#endif 
 
 //template <typename BucketType>
 //void plant_model_ssa(
@@ -109,7 +115,7 @@ void plant_model_ssa(BucketType& bucket, GeoplexType& geoplex2D, GraphType& syst
     /* Step 2: Create the sun context */
     
     int flag; //generic reusable flag 
-
+    #ifdef ENABLE_SUNDIALS
     //Create the suncontext 
     SUNContext ctx;
     flag = SUNContext_Create(NULL, &ctx);
@@ -158,7 +164,7 @@ void plant_model_ssa(BucketType& bucket, GeoplexType& geoplex2D, GraphType& syst
     /* Step 13: Finalilze MPI, if used */ 
 
     /* End the generic sundials skeleton */
-
+    #endif
     while(delta_t < settings.DELTA) 
     {
         //reset tau

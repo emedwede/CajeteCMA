@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17) 
 
-add_compile_options(-O3)
+#add_compile_options(-O3)
 
 # Add the serial host mode by default
 # Currently turning it of would break the code
@@ -32,7 +32,11 @@ endif()
 #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
 
 #find the sundials package for ODE solving 
-find_package(SUNDIALS REQUIRED)
+find_package(SUNDIALS QUIET)
+
+if(SUNDIALS_FOUND)
+	option(SUNDIALS_FOUND ON)
+endif() 
 
 include_directories(include)
 include_directories(thirdparty/simdjson)
@@ -47,3 +51,7 @@ add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(tools)
 add_subdirectory(simulators)
+
+set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/simulators/configuration")
+set(DESTINATION_DIR "${CMAKE_BINARY_DIR}/simulators")
+file(COPY ${SOURCE_DIR} DESTINATION ${DESTINATION_DIR})

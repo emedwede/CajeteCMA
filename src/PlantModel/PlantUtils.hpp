@@ -129,7 +129,7 @@ namespace Plant
                 << "The maximum number allowed and will be used is " << max_mts << "\n"; 
             settings.NUM_MT = max_mts;
         }
-        
+         
         //step 1 create an ordered number of selectable cells 
         std::vector<std::size_t> selectable_cells;
         for(auto i = 0; i < max_mts; i++) selectable_cells.push_back(i);
