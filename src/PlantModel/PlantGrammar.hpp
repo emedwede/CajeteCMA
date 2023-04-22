@@ -46,6 +46,36 @@ std::vector<std::vector<mt_key_type>> microtubule_growing_end_matcher(GraphType&
     return matches;
 }
 
+// search for growing ends in a dimensional partition 
+template <typename GraphType, typename BucketType>
+std::vector<std::vector<mt_key_type>> microtubule_wildcard_wildcard_matcher(GraphType& graph, BucketType& bucket)
+{
+    //YAGL::Graph<mt_key_type, MT_NodeData> graph;    
+    std::vector<std::vector<mt_key_type>> matches;
+    //iterate the whole graph 
+    for(auto i : bucket)
+    {
+        auto itype = graph.findNode(i)->second.getData().type;
+        
+        //if(itype != positive) continue;
+        
+        for(auto jter = graph.out_neighbors_begin(i); jter != graph.out_neighbors_end(i); jter++)
+        {
+            auto j = *jter;
+            auto jtype = graph.findNode(j)->second.getData().type;
+            
+            //if(jtype != intermediate) continue;
+            std::vector<mt_key_type> temp;
+            temp.push_back(i);
+            temp.push_back(j);
+            matches.push_back(temp);
+        }
+    }
+
+    return matches;
+}
+
+
 // search for retracting ends in dimensional partitions
 template <typename GraphType, typename BucketType>
 std::vector<std::vector<mt_key_type>> microtubule_retraction_end_matcher(GraphType& graph, BucketType& bucket)
@@ -513,7 +543,6 @@ void microtubule_zippering_rewrite(GraphType& graph, std::vector<mt_key_type>& m
     bucket.second.erase(bucket.second.begin()+found); //remove from bucket
     */
     dat1.type = zipper; dat5.type = intermediate; graph.addEdge(x5, x1);
-    std::cout << "Zippering!\n";
     //std::cin.get();
 }
 

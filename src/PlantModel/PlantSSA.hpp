@@ -129,8 +129,8 @@ struct Solver
         t_final = RCONST(user_data.settings.DELTA);
 
         flag = SUNContext_Create(NULL, &ctx);
-        if(!Cajete::SundialsUtils::check_flag(&flag, "SUNContext_Create", 1))
-            std::cout << "Passed the error check, suncontext created\n";
+        //if(!Cajete::SundialsUtils::check_flag(&flag, "SUNContext_Create", 1))
+            //std::cout << "Passed the error check, suncontext created\n";
         
         // the number of equations is defined by the parameters of the nodes
         // involved in all the ode rule types
@@ -139,7 +139,7 @@ struct Solver
         num_eq += user_data.r2.size()*DIM3D;
         num_eq++; //one extra equation for tau 
 
-        std::cout << "*****NumEQ="<<num_eq<<"*****\n";
+        //std::cout << "*****NumEQ="<<num_eq<<"*****\n";
         y = NULL; 
         y = N_VNew_Serial(num_eq, ctx); 
         auto j = 0;
@@ -185,11 +185,11 @@ struct Solver
     {
         if(num_eq == 0) return;
         flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-        std::cout << "t: " << t << ", tout: " << tout << "\n";
+        //std::cout << "t: " << t << ", tout: " << tout << "\n";
         if(flag == ARK_ROOT_RETURN)
         {
             root_flag = ERKStepGetRootInfo(arkode_mem, roots_found);
-            std::cout << "A root has been found\n";
+            //std::cout << "A root has been found\n";
         } 
         //successful solve
         else if(flag >= 0)
@@ -314,7 +314,7 @@ struct Solver
     //since it may change in size
     void reinit()
     {
-        std::cout << "Reintializing...\n";
+        //std::cout << "Reintializing...\n";
         auto pre_eq = num_eq;
         auto num_eq = 0;
 
@@ -322,8 +322,8 @@ struct Solver
         num_eq += user_data.r2.size()*DIM3D;
         num_eq++; //one extra equation for tau 
 
-        std::cout << "*****NumEQ="<<num_eq<<"*****\n";
-        std::cout << "Numeq: "<< num_eq << " Preveq: " << pre_eq << "\n"; 
+        //std::cout << "*****NumEQ="<<num_eq<<"*****\n";
+        //std::cout << "Numeq: "<< num_eq << " Preveq: " << pre_eq << "\n"; 
         
         //if(num_eq == pre_eq)
         //{
@@ -378,13 +378,13 @@ struct Solver
     ~Solver()
     {
         //int a; std::cin >> a;
-        std::cout << "Starting solver destruction\n";
+        //std::cout << "Starting solver destruction\n";
         N_VDestroy(y);
-        std::cout << "Destroyed y vector\n";
+        //std::cout << "Destroyed y vector\n";
         ERKStepFree(&arkode_mem); //free the solver memory
-        std::cout << "Destroyed arkode_mem\n";
+        //std::cout << "Destroyed arkode_mem\n";
         SUNContext_Free(&ctx); //always call prior to MPI_Finalize
-        std::cout << "Destroyed the solver\n";
+        //std::cout << "Destroyed the solver\n";
     
         /* Step 13: Finalilze MPI, if used */ 
     }
@@ -410,7 +410,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
     {
         double uniform_sample = RandomRealsBetween(0.0, 1.0)();
         exp_sample = -log(1-uniform_sample);
-        std::cout << "Warped wating time: " << exp_sample << "\n"; 
+        //std::cout << "Warped wating time: " << exp_sample << "\n"; 
     }
     
     typedef struct 
@@ -506,7 +506,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             for(auto& match : rule_matches[0])
             {
                 auto rho = 
-                    microtubule_growing_end_polymerize_propensity(system_graph, match, settings);
+                    20*microtubule_growing_end_polymerize_propensity(system_graph, match, settings);
                 rule_propensities[0] += rho;
                 prop[0].push_back(rho);
 
@@ -527,7 +527,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             for(auto& match : rule_matches[2]) 
             {
                 auto rho = 
-                    microtubule_retraction_end_depolymerize_propensity(system_graph, match, settings);
+                    20*microtubule_retraction_end_depolymerize_propensity(system_graph, match, settings);
                 rule_propensities[1] += rho;
                 prop[1].push_back(rho);
              }
@@ -558,7 +558,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             ode_system.step();
             ode_system.copy_back();
             delta_t = ode_system.t;
-            std::cout << "Stuff: " << geocell_propensity << " " << tau << " " << exp_sample << "\n";
+            //std::cout << "Stuff: " << geocell_propensity << " " << tau << " " << exp_sample << "\n";
             //the step adapts based on propensity or systems fastest dynamic
             //settings.DELTA_T_MIN = std::min(1.0/(10.0*geocell_propensity), settings.DELTA_DELTA_T);
             
@@ -579,9 +579,9 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
         if(tau >= exp_sample) 
         {
             //determine which rule to file and fire it
-            std::cout << "Matches before rule firing\n";
-            std::cout << "r1: " << rule_matches[0].size() << "\n";
-            std::cout << "r2: " << rule_matches[1].size() << "\n";
+            //std::cout << "Matches before rule firing\n";
+            //std::cout << "r1: " << rule_matches[0].size() << "\n";
+            //std::cout << "r2: " << rule_matches[1].size() << "\n";
             microtubule_rule_firing(rule_matches, system_graph, bucket, prop, settings);
             for(auto& z : rule_matches)
                 z.clear();
@@ -599,9 +599,9 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             r1 = rule_matches[0];
             r2 = rule_matches[1];
 
-            std::cout << "Matches after rule firing and refinement\n";
-            std::cout << "r1: " << r1.size() << "\n";
-            std::cout << "r2: " << r2.size() << "\n";
+            //std::cout << "Matches after rule firing and refinement\n";
+            //std::cout << "r1: " << r1.size() << "\n";
+            //std::cout << "r2: " << r2.size() << "\n";
 
 
    
@@ -612,19 +612,19 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             //sample the exponential variable
             exp_sample = -log(1-uniform_sample);
             ode_system.user_data.waiting_time = exp_sample; 
-            std::cout << "Warped wating time: " << exp_sample << "\n"; 
+            //std::cout << "Warped wating time: " << exp_sample << "\n"; 
             
-            ode_system.print_stats();
+            //ode_system.print_stats();
             ode_system.reinit();
-            std::cout << "r1r2\n";
-            std::cout << "Internal ODE match sizes: \n";
-            std::cout << "r1: " << ode_system.user_data.r1.size() << "\n";
-            std::cout << "r2: " << ode_system.user_data.r2.size() << "\n";
+            //std::cout << "r1r2\n";
+            //std::cout << "Internal ODE match sizes: \n";
+            //std::cout << "r1: " << ode_system.user_data.r1.size() << "\n";
+            //std::cout << "r2: " << ode_system.user_data.r2.size() << "\n";
 
-            std::cout << "Init successful\n";
+            //std::cout << "Init successful\n";
         }
     }
-    std::cout << "Total steps taken: " << steps << "\n";
+    //std::cout << "Total steps taken: " << steps << "\n";
     return {tau, exp_sample};
 }
 
