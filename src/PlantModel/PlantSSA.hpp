@@ -229,12 +229,15 @@ struct Solver
         for(auto& instance : local_ptr->r1)
         {
             {
-                auto id = instance[1];
-                auto& node_i_data = local_ptr->system_graph.findNode(id)->second.getData();
+                auto id_a = instance[0];
+                auto id_b = instance[1];
+                auto& node_i_data = local_ptr->system_graph.findNode(id_a)->second.getData();
+                auto& node_j_data = local_ptr->system_graph.findNode(id_b)->second.getData();
+
                 double l = 0.0;
                 for(auto j = 0; j < 3; j++)
                 {
-                    double diff = NV_Ith_S(y, i+j) - node_i_data.position[j];
+                    double diff = NV_Ith_S(y, i+j) - node_j_data.position[j];
                     l += diff*diff;
                 }
                 l = sqrt(l);
@@ -248,12 +251,15 @@ struct Solver
         for(auto& instance : local_ptr->r2)
         {
             {
-                auto id = instance[1];
-                auto& node_i_data = local_ptr->system_graph.findNode(id)->second.getData();
+                auto id_a = instance[0];
+                auto id_b = instance[1];
+                auto& node_i_data = local_ptr->system_graph.findNode(id_a)->second.getData();
+                auto& node_j_data = local_ptr->system_graph.findNode(id_b)->second.getData();
+
                 double l = 0.0;
                 for(auto j = 0; j < 3; j++)
                 {
-                    double diff = NV_Ith_S(y, i+j) - node_i_data.position[j];
+                    double diff = NV_Ith_S(y, i+j) - node_j_data.position[j];
                     l += diff*diff;
                 }
                 l = sqrt(l);
@@ -296,10 +302,19 @@ struct Solver
         user_data.tau = NV_Ith_S(y, j);
     }
 
+    int myResize(N_Vector ycur, N_Vector ynew, void *user_data)
+    {
+        
+        int neq = NV_LENGTH_S(ycur);
+        
+        return 0; /* indicate success */
+    }
+
     //TODO: make this function reset the whole y vector
     //since it may change in size
     void reinit()
     {
+        std::cout << "Reintializing...\n";
         auto pre_eq = num_eq;
         auto num_eq = 0;
 
@@ -308,31 +323,42 @@ struct Solver
         num_eq++; //one extra equation for tau 
 
         std::cout << "*****NumEQ="<<num_eq<<"*****\n";
-        N_VDestroy(y); 
-        y = N_VNew_Serial(num_eq, ctx);
-        
-        auto j = 0;
-        for(const auto& m : user_data.r1)
-        {
-            auto a = m[0]; 
-            auto& node_a_data = user_data.system_graph.findNode(a)->second.getData();
-
-            for(int i = 0; i < DIM3D; i++)
-                NV_Ith_S(y, j++) = node_a_data.position[i];
-        }
-        for(const auto& m : user_data.r2)
-        {
-            auto a = m[0];
-            auto& node_a_data = user_data.system_graph.findNode(a)->second.getData();
-
-            for(int i = 0; i < DIM3D; i++)
-                NV_Ith_S(y, j++) = node_a_data.position[i];
-        }
-
         std::cout << "Numeq: "<< num_eq << " Preveq: " << pre_eq << "\n"; 
-        user_data.tau = 0.0;
-        NV_Ith_S(y, num_eq-1) = 0.0;
-        ERKStepReInit(arkode_mem, rhs, t, y);
+        
+        //if(num_eq == pre_eq)
+        //{
+            N_VDestroy(y); 
+            y = N_VNew_Serial(num_eq, ctx);
+            //for(auto d = 0; d < num_eq; d++) NV_Ith_S(y, d) = 0.0; 
+            auto j = 0;
+            for(const auto& m : user_data.r1)
+            {
+                auto a = m[0]; 
+                auto& node_a_data = user_data.system_graph.findNode(a)->second.getData();
+
+                for(int i = 0; i < DIM3D; i++)
+                    NV_Ith_S(y, j++) = node_a_data.position[i];
+            }
+            for(const auto& m : user_data.r2)
+            {
+                auto a = m[0];
+                auto& node_a_data = user_data.system_graph.findNode(a)->second.getData();
+
+                for(int i = 0; i < DIM3D; i++)
+                    NV_Ith_S(y, j++) = node_a_data.position[i];
+            }
+
+            user_data.tau = 0.0;
+            NV_Ith_S(y, num_eq-1) = 0.0;
+
+            if(num_eq == pre_eq)
+                ERKStepReInit(arkode_mem, rhs, t, y);
+            else
+            {
+                ERKStepResize(arkode_mem, y, 1.0, t, NULL, NULL);
+                ERKStepReInit(arkode_mem, rhs, t, y);
+            }
+        //} 
     }
 
     void print_stats()
@@ -553,10 +579,9 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
         if(tau >= exp_sample) 
         {
             //determine which rule to file and fire it
-         std::cout << rule_matches[0].size()*DIM3D << "\n";
-         std::cout << rule_matches[1].size()*DIM3D << "\n";
-
-
+            std::cout << "Matches before rule firing\n";
+            std::cout << "r1: " << rule_matches[0].size() << "\n";
+            std::cout << "r2: " << rule_matches[1].size() << "\n";
             microtubule_rule_firing(rule_matches, system_graph, bucket, prop, settings);
             for(auto& z : rule_matches)
                 z.clear();
@@ -570,12 +595,14 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             total_matches = 0; for(auto i = 0; i < num_patterns; i++) total_matches += rule_matches[i].size(); 
 
             collision_match_refinement(system_graph, 3.0*settings.DIV_LENGTH, rule_matches[0], rule_matches[3], rule_matches[4]);
-        
+            
             r1 = rule_matches[0];
             r2 = rule_matches[1];
-            std::cout << "r1r2\n";
-            std::cout << r1.size() << "\n";
-            std::cout << r2.size() << "\n";
+
+            std::cout << "Matches after rule firing and refinement\n";
+            std::cout << "r1: " << r1.size() << "\n";
+            std::cout << "r2: " << r2.size() << "\n";
+
 
    
             //zero out tau since a rule has fired 
@@ -588,11 +615,11 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             std::cout << "Warped wating time: " << exp_sample << "\n"; 
             
             ode_system.print_stats();
-            std::cout << "Init attempt\n";
             ode_system.reinit();
             std::cout << "r1r2\n";
-            std::cout << ode_system.user_data.r1.size()*DIM3D << "\n";
-            std::cout << ode_system.user_data.r2.size()*DIM3D << "\n";
+            std::cout << "Internal ODE match sizes: \n";
+            std::cout << "r1: " << ode_system.user_data.r1.size() << "\n";
+            std::cout << "r2: " << ode_system.user_data.r2.size() << "\n";
 
             std::cout << "Init successful\n";
         }
@@ -694,7 +721,7 @@ void microtubule_rule_firing(MatchType& all_matches, GraphType& system_graph, Bu
             eventFired++;
             local_progress -= prop[ruleFired][eventFired];
         }
-        //microtubule_zippering_rewrite(system_graph, all_matches[4][eventFired], bucket, settings);
+        microtubule_zippering_rewrite(system_graph, all_matches[4][eventFired], bucket, settings);
     }
     if(ruleFired == 3)
     {
@@ -707,7 +734,7 @@ void microtubule_rule_firing(MatchType& all_matches, GraphType& system_graph, Bu
             eventFired++;
             local_progress -= prop[ruleFired][eventFired];
         }
-        //microtubule_positive_to_negative_rewrite(system_graph, all_matches[0][eventFired], bucket);
+        microtubule_positive_to_negative_rewrite(system_graph, all_matches[0][eventFired], bucket);
     }
     if(ruleFired == 4)
     {

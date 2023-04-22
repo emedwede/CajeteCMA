@@ -481,7 +481,7 @@ void microtubule_zippering_rewrite(GraphType& graph, std::vector<mt_key_type>& m
     //find all the node data
     auto& dat1 = graph.findNode(x1)->second.getData();
     auto& dat4 = graph.findNode(x4)->second.getData();
-   
+    auto& dat5 = graph.findNode(x5)->second.getData(); 
     //get references to position vector
     auto& pos1 = dat1.position;
     auto& pos4 = dat4.position;
@@ -491,7 +491,8 @@ void microtubule_zippering_rewrite(GraphType& graph, std::vector<mt_key_type>& m
     
     //remove the positive node and connect it's intermediate to
     //the threeway juntion
-    graph.removeNode(graph.findNode(x5)->second);
+    /*auto node_x5 = graph.findNode(x5)->second;
+    graph.removeNode(node_x5);
     graph.addEdge(x1, x4);
     set_unit_vector(pos1, pos4, u4);
     
@@ -504,12 +505,16 @@ void microtubule_zippering_rewrite(GraphType& graph, std::vector<mt_key_type>& m
         if(bucket.second[iter] == x5)
         {
             found = iter;
+            std::cout << "found!\n";
             break;    
         }
     }
     //TODO: improve this O(N) search
     bucket.second.erase(bucket.second.begin()+found); //remove from bucket
-
+    */
+    dat1.type = zipper; dat5.type = intermediate; graph.addEdge(x5, x1);
+    std::cout << "Zippering!\n";
+    //std::cin.get();
 }
 
 
