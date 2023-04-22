@@ -16,7 +16,7 @@ install_prefix=${build_base_dir}/install/${arch}-${compiler}
 build_dir=${build_prefix}/${project_name}
 install_dir=${install_prefix}/${project_name}
 
-#sundials_dir=/home/erock/Extras/sundials-build
+sundials_dir=/home/erock/Extras/sundials-build
 
 source_dir=${source_prefix}
 
@@ -35,6 +35,5 @@ mkdir -p ${build_dir} && cd ${build_dir}
 echo `pwd`
 cmake   -D CMAKE_CXX_EXTENSIONS=Off \
         -D CMAKE_INSTALL_PREFIX=${install_path} \
+        -D SUNDIALS_DIR=${sundials_dir} \
         ${source_dir}
-        #-D SUNDIALS_DIR=${sundials_dir} \
-        #${source_dir}

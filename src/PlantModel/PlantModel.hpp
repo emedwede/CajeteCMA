@@ -278,6 +278,10 @@ namespace Cajete
                     settings.GHOSTED); //ghosted
             std::cout << geoplex2D;
             
+            std::cout << "Setting intial cell propensities to zero\n";
+            for(auto& [key, value] : geoplex2D.graph.getNodeSetRef())
+                geocell_progress[key] = {0.0, 0.0};           
+            
             //Save expanded cell complex graph
             Cajete::VtkFileWriter<typename Cajete::ExpandedComplex2D<>::types::graph_type> writer;
             writer.save(geoplex2D.getGraph(), results_dir_name+"/factory_geoplex");
@@ -368,7 +372,8 @@ namespace Cajete
                    if(geoplex2D.getGraph().findNode(k)->second.getData().interior)
                    {
                         auto start = std::chrono::high_resolution_clock::now();
-                        plant_model_ssa(bucket, geoplex2D, system_graph, settings);
+                        geocell_progress[k] = 
+                            plant_model_ssa(bucket, geoplex2D, system_graph, settings, geocell_progress[k]);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
                         //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
@@ -407,7 +412,8 @@ namespace Cajete
                    if(geoplex2D.getGraph().findNode(k)->second.getData().interior)
                    {
                         auto start = std::chrono::high_resolution_clock::now();
-                        plant_model_ssa(bucket, geoplex2D, system_graph, settings);
+                        geocell_progress[k] =
+                            plant_model_ssa(bucket, geoplex2D, system_graph, settings, geocell_progress[k]);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
                         //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
@@ -440,7 +446,8 @@ namespace Cajete
                    if(geoplex2D.getGraph().findNode(k)->second.getData().interior)
                    {
                         auto start = std::chrono::high_resolution_clock::now();
-                        plant_model_ssa(bucket, geoplex2D, system_graph, settings);
+                        geocell_progress[k] =
+                            plant_model_ssa(bucket, geoplex2D, system_graph, settings, geocell_progress[k]);
                         auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
                         //std::cout << "Cell " << k << " took " << duration.count() << " milliseconds\n";
@@ -522,6 +529,7 @@ namespace Cajete
 
 
     private:
+        std::map<gplex_key_type, std::pair<double, double>> geocell_progress;
         Parameters settings;
         CartesianComplex2D<> cplex2D;
         ExpandedComplex2D<> geoplex2D;

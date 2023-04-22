@@ -930,7 +930,7 @@ void microtubule_retraction_end_depolymerize_solve(GraphType& graph, StateType& 
     
     //TODO: find a way to remove this later, is it absolutely needed?
     if(length_limiter <= d_l_r) length_limiter = 0.0; //absolutely needed 
-
+//
     for(auto iter = 0; iter < 3; iter++)
     {
         if(dist < v_minus*dtdt*length_limiter)
