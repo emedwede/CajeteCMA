@@ -12,6 +12,8 @@ To use the main simulation code, navigate to your build directory and then to th
 
 The results of the simulations are saved as graphs in the [VTK](https://kitware.github.io/vtk-examples/site/VTKFileFormats/) file format. The system graph file, simulation_step_xx.vtu, is saved at the checkpoint frequency defined in the config file. The cell complex for the simulation domain is saved as factory_geoplex.vtu. Both types of data files are saved in [experiment_name]_results folder locally created in the executable directory. 
 
+**Please be aware that simulation step files can get rather large, and frequent checkpointing can add up! So, saving several thousand steps for several simulations is a bad idea unless you have the storage to spare!**
+
 To visualize any results, we highly recommend using [Paraview](https://www.paraview.org/download/) and loading the simulation step files and geoplex files twice. On the first load you can apply a surface with edges filter and on the second load you can apply the points filter. Then, color the points by node_type.
 
 # Experiments and Results
