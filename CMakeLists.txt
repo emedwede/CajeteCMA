@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17) 
 
-#add_compile_options(-O3)
+add_compile_options(-O3)
 
 # Add the serial host mode by default
 # Currently turning it of would break the code
@@ -32,7 +32,7 @@ endif()
 #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
 
 #find the sundials package for ODE solving 
-find_package(SUNDIALS QUIET)
+find_package(SUNDIALS REQUIRED)
 
 if(SUNDIALS_FOUND)
 	option(SUNDIALS_FOUND ON)

@@ -506,7 +506,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             for(auto& match : rule_matches[0])
             {
                 auto rho = 
-                    20*microtubule_growing_end_polymerize_propensity(system_graph, match, settings);
+                    microtubule_growing_end_polymerize_propensity(system_graph, match, settings);
                 rule_propensities[0] += rho;
                 prop[0].push_back(rho);
 
@@ -527,7 +527,7 @@ std::pair<double, double> plant_model_ssa(BucketType& bucket, GeoplexType& geopl
             for(auto& match : rule_matches[2]) 
             {
                 auto rho = 
-                    20*microtubule_retraction_end_depolymerize_propensity(system_graph, match, settings);
+                    microtubule_retraction_end_depolymerize_propensity(system_graph, match, settings);
                 rule_propensities[1] += rho;
                 prop[1].push_back(rho);
              }

@@ -140,7 +140,7 @@ namespace Cajete
             points.push_back({p[0], p[1], u[0], u[1]});
         }
         
-        double bin_size = settings.MAXIMAL_REACTION_RADIUS;
+        double bin_size = settings.MAXIMAL_REACTION_RADIUS/2.0;
         double max_distance = std::max(settings.CELL_NX*settings.CELL_DX, settings.CELL_NY*settings.CELL_DY); 
         return two_point_correlation_alpha(points, bin_size, max_distance);
     }
