@@ -151,15 +151,15 @@ namespace Cajete
         double DELTA;
         double DELTA_DELTA_T;
         int NUM_INTERNAL_STEPS;
-        std::size_t CELL_NX;
-        std::size_t CELL_NY;
+	int CELL_NX;
+	int CELL_NY;
         double CELL_DX;
         double CELL_DY;
         bool GHOSTED;
-        std::size_t NUM_MT;
+        int NUM_MT;
         double MT_MIN_SEGMENT_INIT;
         double MT_MAX_SEGMENT_INIT;
-        std::size_t NUM_STEPS;
+        int NUM_STEPS;
         double LENGTH_DIV_FACTOR;
         double DIV_LENGTH;
         double DIV_LENGTH_RETRACT;
@@ -169,7 +169,7 @@ namespace Cajete
         double TOTAL_TIME;
         double MAXIMAL_REACTION_RADIUS;
         double DELTA_T_MIN;
-        std::size_t CHECKPOINT_FREQUENCY;
+        int CHECKPOINT_FREQUENCY;
         double CATASTROPHE_RATE_FACTOR; 
         double ZIPPER_RATE_FACTOR;
         double CROSSOVER_RATE_FACTOR;
@@ -201,14 +201,14 @@ namespace Cajete
         settings.EXPERIMENT_NAME = static_cast<std::string>(temp);
 
         std::cout << settings.EXPERIMENT_NAME << "+++\n";
-                settings.CELL_NX = std::size_t(interface["SETTINGS"]["CELL_NX"]); 
-        settings.CELL_NY = std::size_t(interface["SETTINGS"]["CELL_NY"]);
-        
+        settings.CELL_NX = uint64_t(interface["SETTINGS"]["CELL_NX"]);
+        settings.CELL_NY = uint64_t(interface["SETTINGS"]["CELL_NY"]);
+       	std::cout << "here\n"; 
         settings.CELL_DX = double(interface["SETTINGS"]["CELL_DX"]);
         settings.CELL_DY = double(interface["SETTINGS"]["CELL_DY"]);
         settings.GHOSTED = bool(interface["SETTINGS"]["GHOSTED"]);
 
-        settings.NUM_MT = std::size_t(interface["SETTINGS"]["NUM_MT"]);
+        settings.NUM_MT = uint64_t(interface["SETTINGS"]["NUM_MT"]);
         settings.MT_MIN_SEGMENT_INIT = double(interface["SETTINGS"]["MT_MIN_SEGMENT_INIT"]);
         settings.MT_MAX_SEGMENT_INIT = double(interface["SETTINGS"]["MT_MAX_SEGMENT_INIT"]);
 
@@ -233,7 +233,7 @@ namespace Cajete
         settings.DELTA_DELTA_T = settings.DELTA / settings.NUM_INTERNAL_STEPS; 
         settings.DELTA_T_MIN = settings.DELTA_DELTA_T;
         settings.NUM_STEPS = settings.TOTAL_TIME / settings.DELTA;
-        settings.CHECKPOINT_FREQUENCY = std::size_t(interface["SETTINGS"]["CHECKPOINT_FREQUENCY"]);
+        settings.CHECKPOINT_FREQUENCY = uint64_t(interface["SETTINGS"]["CHECKPOINT_FREQUENCY"]);
         settings.CATASTROPHE_RATE_FACTOR = double(interface["RATE_FACTORS"]["CATASTROPHE_RATE_FACTOR"]);
         settings.ZIPPER_RATE_FACTOR = double(interface["RATE_FACTORS"]["ZIPPER_RATE_FACTOR"]);
         settings.CROSSOVER_RATE_FACTOR = double(interface["RATE_FACTORS"]["CROSSOVER_RATE_FACTOR"]);
