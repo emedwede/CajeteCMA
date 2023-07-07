@@ -1,6 +1,6 @@
 # A Graph Grammar Simulator for the Cortical Microtubule Array (CMA)
 
-A serial implementation for a graph grammar simulator featured in the paper titled, "Approximate Simulation of Cortical Microtubule Models using Dynamical Graph Grammars". This repo is intended to be a proof of concept for the approximate simulation algorithm and not for production use. The backend is powered by an early version of YAGL: Yet another Graph Library.
+A serial implementation for a graph grammar simulator featured in the paper titled, ["Approximate Simulation of Cortical Microtubule Models using Dynamical Graph Grammars"](https://dx.doi.org/10.1088/1478-3975/acdbfb) This repo is intended to be a proof of concept for the approximate simulation algorithm and not for production use. The backend is powered by an early version of YAGL: Yet another Graph Library.
 
 
 # Requirements and Build Instructions
