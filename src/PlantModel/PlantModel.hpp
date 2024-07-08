@@ -227,8 +227,8 @@ namespace Cajete
         settings.NUM_INTERNAL_STEPS = double(interface["SETTINGS"]["NUM_INTERNAL_STEPS"]);
         //Delta should be big, but not to big. In this case, the maximum amount of time it would
         //take one MT to grow a single unit of MT
-        settings.DELTA = 
-            0.25*settings.MAXIMAL_REACTION_RADIUS / std::max(settings.V_PLUS, settings.V_MINUS);
+        settings.DELTA = 0.4;
+            //0.25*settings.MAXIMAL_REACTION_RADIUS / std::max(settings.V_PLUS, settings.V_MINUS);
         //The internal step of the solver should be at least this small
         settings.DELTA_DELTA_T = settings.DELTA / settings.NUM_INTERNAL_STEPS; 
         settings.DELTA_T_MIN = settings.DELTA_DELTA_T;
@@ -297,7 +297,7 @@ namespace Cajete
 
         void run() override {
             std::cout << "Running the plant model simulation\n";
-            auto angular_correlation = compute_two_point_correlation_alpha(system_graph, settings);
+//            auto angular_correlation = compute_two_point_correlation_alpha(system_graph, settings);
             Cajete::VtkFileWriter<graph_type> vtk_writer;
             std::cout << system_graph;
             std::vector<std::size_t> con_com;
@@ -508,7 +508,7 @@ namespace Cajete
                 total_run_time += tot_time;
             }
             std::cout << "-----------------------------------------------------------------------\n\n";
-            std::cout << "total run time of simulation including io: " << (total_run_time/1000)/60 << " minutes\n"; 
+            std::cout << "total run time of simulation including io: " << (total_run_time/1000) << " seconds\n";
             
             print_numpy_array_stats(con_com, "con_com");
             print_numpy_array_stats(type_counts[Plant::negative], "negative");
@@ -520,10 +520,10 @@ namespace Cajete
             print_numpy_array_stats(time_count, "time_count");
             print_numpy_array_stats(correlation, "correlation");
 
-            auto angular_correlation2 = compute_two_point_correlation_alpha(system_graph, settings);
-            
-            print_numpy_array_stats(angular_correlation, "angle_correlation_"+settings.EXPERIMENT_NAME+"_start");
-            print_numpy_array_stats(angular_correlation2, "angle_correlation_"+settings.EXPERIMENT_NAME+"_end");
+//            auto angular_correlation2 = compute_two_point_correlation_alpha(system_graph, settings);
+//
+//            print_numpy_array_stats(angular_correlation, "angle_correlation_"+settings.EXPERIMENT_NAME+"_start");
+//            print_numpy_array_stats(angular_correlation2, "angle_correlation_"+settings.EXPERIMENT_NAME+"_end");
 
         }
 

@@ -241,7 +241,7 @@ struct Solver
                     l += diff*diff;
                 }
                 l = sqrt(l);
-                double length_limiter = (1.0 - (l/d_l));
+                double length_limiter = 1.0;//(1.0 - (l/d_l));
                 NV_Ith_S(ydot, i) = v_plus*node_i_data.unit_vec[0]*length_limiter;
                 NV_Ith_S(ydot, i+1) = v_plus*node_i_data.unit_vec[1]*length_limiter;
                 NV_Ith_S(ydot, i+2) = v_plus*node_i_data.unit_vec[2]*length_limiter;

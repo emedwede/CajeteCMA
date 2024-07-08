@@ -266,10 +266,11 @@ void microtubule_growing_end_polymerize_rewrite(GraphType& graph, std::vector<mt
     auto& x1 = graph.findNode(i)->second.getData().position;
     auto& x2 = graph.findNode(j)->second.getData().position;
     auto& u1 = graph.findNode(i)->second.getData().unit_vec;
-    auto gamma = 0.75;
+    auto gamma = 0.99;
     for(auto iter = 0; iter < 3; iter++)
     {
-        x3[iter] = x2[iter] - ((x2[iter]-x1[iter]) * gamma); 
+        //x3[iter] = x2[iter] - ((x2[iter]-x1[iter]) * gamma);
+        x3[iter] = x2[iter] - (x2[iter]-x1[iter])/100.0;
     }
     
     graph.addNode({key, 
@@ -354,8 +355,8 @@ double microtubule_growing_end_polymerize_propensity(GraphType& graph, std::vect
     auto& node_j_data = graph.findNode(match[1])->second.getData();
     
     auto len = calculate_distance(node_i_data.position, node_j_data.position);
-    //double propensity = heaviside(len, settings.DIV_LENGTH);
-    double propensity = 3*sigmoid((len/settings.DIV_LENGTH) - 1.0, settings.SIGMOID_K);
+    double propensity = 2*heaviside(len, settings.DIV_LENGTH);
+    //double propensity = 3*sigmoid((len/settings.DIV_LENGTH) - 1.0, settings.SIGMOID_K);
     return propensity;
 }
 
